@@ -178,16 +178,11 @@ class Tracks():
                 distSiguiente=(x4-xc)**2+(y4-yc)**2#Dist. siguiente al centro
                 deltaRadial=distSiguiente-distActual#Desplazamiento radial
                 deltaZ = z4-z3#Desplazamiento z
-                if abs(deltaRadial)>abs(deltaZ):
-                    if deltaRadial>0:
-                        return 1
-                    else:
-                        return 0
+                if deltaRadial>0:
+                    return 1
                 else:
-                    if deltaZ>0:
-                        return 2
-                    else:
-                        return 3
+                    return 0
+                
             
             resultado=[]
             for track in self.tracks:

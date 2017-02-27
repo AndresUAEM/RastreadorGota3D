@@ -51,7 +51,7 @@ class Visualization(HasTraits):
         self.esferas[0].mlab_source.reset(x=self.x[0][i],y=self.y[0][i],z=self.z[0][i],scale_factor=1,color=(0,0,1))
         self.esferas[1].mlab_source.reset(x=self.x[1][i],y=self.y[1][i],z=self.z[1][i],scale_factor=1,color=(0,1,0))
         #self.esferas[2].mlab_source.reset(x=self.x[2][i],y=self.y[2][i],z=self.z[2][i],scale_factor=1,color=(1,0,0))
-        self.esferas[3].mlab_source.reset(x=self.x[3][i],y=self.y[3][i],z=self.z[3][i],scale_factor=1,color=(1,1,1))
+        #self.esferas[3].mlab_source.reset(x=self.x[3][i],y=self.y[3][i],z=self.z[3][i],scale_factor=1,color=(1,1,1))
     def guardarImagen(self,nombre):
         self.scene.save(nombre+'.png')
     
@@ -78,7 +78,7 @@ class Visualization(HasTraits):
                 x2[j].append(x1[i])
                 y2[j].append(y1[i])
                 z2[j].append(z1[i])
-            for i in range(4):
+            for i in range(2):
                 x[i].append(x2[i])
                 y[i].append(y2[i])
                 z[i].append(z2[i])
@@ -121,7 +121,7 @@ class Visualization(HasTraits):
         i=0
         self.completas=self.crearTrayectorias(tracks,lmin)
         self.trayectorias=self.scene.mlab.quiver3d(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w,color=(1,0,0),opacity=0.3,scale_factor=1.0)
-        self.scene.mlab.outline()
+        #self.scene.mlab.outline()
         self.scene.mlab.axes()
         #self.trayectorias=self.scene.mlab.flow(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w)
         #self.flechas2=self.scene.mlab.quiver3d(self.vectX2, self.vectY2, self.vectZ2, self.vectU2, self.vectV2, self.vectW2,color=(0,0,0),opacity=0.1)
