@@ -9,90 +9,133 @@ from traits.api import HasTraits, Instance, on_trait_change
 from traitsui.api import View, Item
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel,SceneEditor
 
+class Vectores:
+    def __init__(self):
+        self.x=[]
+        self.y=[]
+        self.z=[]
+        self.u=[]
+        self.v=[]
+        self.w=[]
+        
+    def  agregar(self,x,y,z,u,v,w):
+        self.x.append(x)
+        self.y.append(y)
+        self.z.append(z)
+        self.u.append(u)
+        self.v.append(v)
+        self.w.append(w)
+    
+    def rellenar(self):
+        tama=0
+        for tiempo in range(len(self.x)):
+            #Obtener self.vectores
+            if len(self.x[tiempo])>tama:
+                tama=len(self.x[tiempo])
+        for tiempo in range(len(self.x)):
+            while (len(self.x[tiempo])<tama):
+                self.x[tiempo].append(self.x[tiempo][0])
+                self.y[tiempo].append(self.y[tiempo][0])
+                self.z[tiempo].append(self.z[tiempo][0])
+                self.u[tiempo].append(self.u[tiempo][0])
+                self.v[tiempo].append(self.v[tiempo][0])
+                self.w[tiempo].append(self.w[tiempo][0])
+        
 #The actual visualization
 class Visualization(HasTraits):
     scene = Instance(MlabSceneModel, ())
         
-    def cambiarFrame(self,t):
-        self.flechas.mlab_source.set(x=self.vectX[t], y=self.vectY[t], z=self.vectZ[t], u=self.vectU[t], v=self.vectV[t], w=self.vectW[t])
-        self.esferas.mlab_source.reset(x=self.x[t],y=self.y[t],z=self.z[t])
-    
+    def cambiarFrame(self,i):
+        #self.flechasVerdes.mlab_source.set(x=self.vectVerdes.x[i], y=self.vectVerdes.y[i], z=self.vectVerdes.z[i], u=self.vectVerdes.u[i], v=self.vectVerdes.v[i], w=self.vectVerdes.w[i],color=(0,1,0))
+        #self.flechasRojas.mlab_source.set(x=self.vectRojos.x[i], y=self.vectRojos.y[i], z=self.vectRojos.z[i], u=self.vectRojos.u[i], v=self.vectRojos.v[i], w=self.vectRojos.w[i],color=(1,0,0))
+        self.esferas[0].mlab_source.reset(x=self.x[0][i],y=self.y[0][i],z=self.z[0][i],scale_factor=1,color=(0,0,1))
+        self.esferas[1].mlab_source.reset(x=self.x[1][i],y=self.y[1][i],z=self.z[1][i],scale_factor=1,color=(0,1,0))
+        self.esferas[2].mlab_source.reset(x=self.x[2][i],y=self.y[2][i],z=self.z[2][i],scale_factor=1,color=(1,0,0))
+        self.esferas[3].mlab_source.reset(x=self.x[3][i],y=self.y[3][i],z=self.z[3][i],scale_factor=1,color=(1,1,1))
     def guardarImagen(self,nombre):
         self.scene.save(nombre+'.png')
-        
+    
+    def cambiarVisibilidad(self,lista):
+        for i in range(len(self.esferas)):
+            print(lista[i])
+            if lista[i]:
+                self.esferas[i].visible=True
+            else:
+                self.esferas[i].visible=False
+    
     def crearPuntos(self,tracks,lmin):
-        x=[]
-        y=[]
-        z=[]
+        x=[[] for i in range(4)]
+        y=[[] for i in range(4)]
+        z=[[] for i in range(4)]
         for tiempo in range(self.tmax):
             #Obtener puntos
-            x1,y1,z1=tracks.puntos(tiempo,lmin)
-            x.append(x1)
-            y.append(y1)
-            z.append(z1)
+            x1,y1,z1=tracks.puntos(tiempo,lmin,self.centroX)
+            x2=[[] for i in range(4)]
+            y2=[[] for i in range(4)]
+            z2=[[] for i in range(4)]
+            for i in range(len(x1)):
+                j=self.sentidos[tiempo][i]
+                x2[j].append(x1[i])
+                y2[j].append(y1[i])
+                z2[j].append(z1[i])
+            for i in range(4):
+                x[i].append(x2[i])
+                y[i].append(y2[i])
+                z[i].append(z2[i])
         return  x,y,z
+    
+    def crearTrayectorias(self,tracks,lmin):
+        vect=Vectores()
+        for tiempo in range(self.tmax):
+            x,y,z,u,v,w=tracks.vectores(tiempo,lmin)
+            for i in range(len(x)):
+                vect.x.append(x[i])
+                vect.y.append(y[i])
+                vect.z.append(z[i])
+                vect.u.append(u[i])
+                vect.v.append(v[i])
+                vect.w.append(w[i])
+
+        return vect
         
     def crearVectores(self,tracks,lmin):
-        vectX=[]
-        vectY=[]
-        vectZ=[]
-        vectU=[]
-        vectV=[]
-        vectW=[]
-        self.vectX2=[]
-        self.vectY2=[]
-        self.vectZ2=[]
-        self.vectU2=[]
-        self.vectV2=[]
-        self.vectW2=[]
-        tama=0
+        verdes=Vectores()
+        rojos=Vectores()
         for tiempo in range(self.tmax):
             #Obtener self.vectores
-            x2,y2,z2,u,v,w=tracks.vectores(tiempo,lmin)
-            vectX.append(x2)
-            vectY.append(y2)
-            vectZ.append(z2)
-            vectU.append(u)
-            vectV.append(v)
-            vectW.append(w)
-            for i in range(len(x2)):
-                self.vectX2.append(x2[i])
-                self.vectY2.append(y2[i])
-                self.vectZ2.append(z2[i])
-                self.vectU2.append(u[i])
-                self.vectV2.append(v[i])
-                self.vectW2.append(w[i])
-            if len(x2)>tama:
-                tama=len(x2)
-        for tiempo in range(self.tmax):
-            i=len(vectX[tiempo])
-            while (len(vectX[tiempo])<tama):
-                vectX[tiempo].append(vectX[tiempo][0])
-                vectY[tiempo].append(vectY[tiempo][0])
-                vectZ[tiempo].append(vectZ[tiempo][0])
-                vectU[tiempo].append(vectU[tiempo][0])
-                vectV[tiempo].append(vectV[tiempo][0])
-                vectW[tiempo].append(vectW[tiempo][0])
-        return vectX,vectY,vectZ,vectU,vectV,vectW
+            x1,y1,z1,u1,v1,w1,x2,y2,z2,u2,v2,w2=tracks.vectoresSeparados(self.centroX,self.centroY,tiempo,lmin)
+            verdes.agregar(x1,y1,z1,u1,v1,w1)
+            rojos.agregar(x2,y2,z2,u2,v2,w2)
+        verdes.rellenar()
+        rojos.rellenar()
+        return verdes,rojos
     
-    def separarPorSentido(self,centro):
-        self.haciaDentro=[]
-        self.haciaFuera=[]
-    
-    def mostrar(self,tracks,lmin=0):
+    def mostrar(self,tracks,lmin=2):
         self.tmax=tracks.duracion
-        self.x,self.y,self.z = self.crearPuntos(tracks,lmin)
-        self.vectX,self.vectY,self.vectZ,self.vectU,self.vectV,self.vectW = self.crearVectores(tracks,lmin)
+        lmin=self.tmax
         self.centroX=(tracks.xMax+tracks.xMin)/2
         self.centroY=(tracks.yMax+tracks.yMin)/2
+        self.sentidos=tracks.sentidos(self.centroX,self.centroY,3)
+        self.x,self.y,self.z = self.crearPuntos(tracks,3)
+        #self.vectVerdes,self.vectRojos = self.crearVectores(tracks,lmin)
         i=0
-        
-        #self.flechas2=self.scene.mlab.quiver3d(self.vectX2, self.vectY2, self.vectZ2, self.vectU2, self.vectV2, self.vectW2,color=(0,0,0),opacity=0.1)
-        self.flechas=self.scene.mlab.quiver3d(self.vectX[i], self.vectY[i], self.vectZ[i], self.vectU[i], self.vectV[i], self.vectW[i],color=(0,0,1))
-        self.esferas=self.scene.mlab.points3d(self.x[i],self.y[i],self.z[i],scale_factor=1)
-        self.centro=self.scene.mlab.points3d([self.centroX],[self.centroY],[0],scale_factor=20)
+        self.completas=self.crearTrayectorias(tracks,lmin)
+        self.trayectorias=self.scene.mlab.quiver3d(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w,color=(1,1,0.5),opacity=0.3,scale_factor=1.0)
         self.scene.mlab.outline()
         self.scene.mlab.axes()
+        #self.trayectorias=self.scene.mlab.flow(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w)
+        #self.flechas2=self.scene.mlab.quiver3d(self.vectX2, self.vectY2, self.vectZ2, self.vectU2, self.vectV2, self.vectW2,color=(0,0,0),opacity=0.1)
+        #self.flechasVerdes=self.scene.mlab.quiver3d(self.vectVerdes.x[i], self.vectVerdes.y[i], self.vectVerdes.z[i], self.vectVerdes.u[i], self.vectVerdes.v[i], self.vectVerdes.w[i],color=(0,1,0))
+        #self.flechasRojas=self.scene.mlab.quiver3d(self.vectRojos.x[i], self.vectRojos.y[i], self.vectRojos.z[i], self.vectRojos.u[i], self.vectRojos.v[i], self.vectRojos.w[i],color=(1,0,0))
+        
+        
+        self.esferas=[]
+        self.esferas.append(self.scene.mlab.points3d(self.x[0][i],self.y[0][i],self.z[0][i],scale_factor=1,color=(0,0,1)))
+        self.esferas.append(self.scene.mlab.points3d(self.x[1][i],self.y[1][i],self.z[1][i],scale_factor=1,color=(0,1,0)))
+        self.esferas.append(self.scene.mlab.points3d(self.x[2][i],self.y[2][i],self.z[2][i],scale_factor=1,color=(1,0,0)))
+        self.esferas.append(self.scene.mlab.points3d(self.x[3][i],self.y[3][i],self.z[3][i],scale_factor=1,color=(1,1,1)))
+        #self.centro=self.scene.mlab.points3d([self.centroX],[self.centroY],[0],scale_factor=20)
+        
         
 
     # the layout of the dialog screated
@@ -124,6 +167,9 @@ class Animacion:
     def actualizar(self,tracks):
         vis=self.mayavi_widget.visualization.mostrar(tracks)
     
+    def cambiarVisibilidad(self,lista):
+        self.mayavi_widget.visualization.cambiarVisibilidad(lista)
+        
     def guardarVideo(self,nombre):
         vis=self.mayavi_widget.visualization
         cwd = os.getcwd()

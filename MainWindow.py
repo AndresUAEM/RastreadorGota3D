@@ -22,7 +22,7 @@ class Principal(QtGui.QMainWindow):
             tracks=self.aplicacionAbrir.tracks
             print('Trayectorias cargadas')
         except AttributeError:
-            print 'Error en la máquina virtual (JVM)'
+            print 'Inicie máquina virtual (JVM)'
             sys.exit()
         self.animacion.actualizar(tracks)
             
@@ -32,7 +32,9 @@ class Principal(QtGui.QMainWindow):
         self.cambiarFrame()
         self.botonGuardarTrayectorias.setEnabled(True)
         self.botonGuardarVideo.setEnabled(True)
-            
+        for cb in self.checkBoxParticulas:
+            cb.setEnabled(True)
+        self.accionCheckBox()
             
     def guardar(self):
         Tk().withdraw()
@@ -78,6 +80,22 @@ class Principal(QtGui.QMainWindow):
             self.t1 = threading.Thread(target=self.play, args=(0,0))
             self.t1.start()          
     
+    def accionCheckBox(self):
+        self.animacion.cambiarVisibilidad([cb.isChecked() for cb in self.checkBoxParticulas])
+    
+    def crearCheckBoxes(self):
+        self.checkBoxParticulas=[]
+        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia centro (Azul)'))
+        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia fuera (Verde)'))
+        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia arriba (Rojo)'))
+        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia abajo (Blanco)'))
+        layout=QtGui.QHBoxLayout()
+        for cb in self.checkBoxParticulas:
+            cb.setEnabled(False)
+            cb.stateChanged.connect(self.accionCheckBox)
+            layout.addWidget(cb)
+        self.layout.addLayout(layout)
+        
     def crearLayout(self):
         self.layout = QtGui.QVBoxLayout()
         self.crearMenu()
@@ -93,6 +111,7 @@ class Principal(QtGui.QMainWindow):
         self.sliderFrame.valueChanged.connect(self.cambiarFrame)
         self.sliderFrame.setEnabled(False)
         self.labelIndice=QtGui.QLabel('0/0')
+        self.crearCheckBoxes()
         layout2 = QtGui.QHBoxLayout()
         layout2.addWidget(self.botonPlay)
         layout2.addWidget(self.sliderFrame)

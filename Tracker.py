@@ -71,9 +71,11 @@ class Tracks():
         self.xMax= -np.inf
         self.yMin=  np.inf
         self.yMax= -np.inf
-        for trayectoria in datos:
+        for i in range(len(datos)):
             r=Track()
-            for vals  in trayectoria:
+            if i%100==0:
+                print i,'/',len(datos)
+            for vals  in datos[i]:
                 x=float(vals[0])
                 y=float(vals[1])
                 z=float(vals[2])
@@ -117,9 +119,6 @@ class Tracks():
         for t in self.tracks:
             t.imprimir()
             print
-    #Retorna el numero de frames
-    def duracion(self):
-        return max([track.puntos[len(track.puntos)-1].t for track in self.tracks])
         
     def guardar(self,ruta):
         f = file(ruta,'w')
@@ -137,17 +136,17 @@ class Tracks():
                     f.write(',,,,')
         f.close()
     
-    def puntos(self,tiempo,lmin):
+    def puntos(self,tiempo,lmin,xc= np.inf):
         x2=[]
         y2=[]
         z2=[]
         for track in self.tracks:
-            if lmin<=track.longitud():
-                x1,y1,z1=track.posicion(tiempo)
-                if x1!=None: 
-                    x2.append(x1)
-                    y2.append(y1)
-                    z2.append(z1)
+            x1,y1,z1=track.posicion(tiempo)
+            x3,y3,z3=track.siguiente(tiempo)
+            if x1 and x3 and lmin<=track.longitud():
+                x2.append(x1)
+                y2.append(y1)
+                z2.append(z1)
         return x2,y2,z2
     
     def vectores(self,tiempo,lmin):
@@ -160,7 +159,7 @@ class Tracks():
         for track in self.tracks:
             x1,y1,z1=track.posicion(tiempo)
             x2,y2,z2=track.siguiente(tiempo)
-            if x1 and x2 and lmin<=track.longitud:
+            if x1 and x2 and lmin<=track.longitud():
                 u1=x2-x1
                 v1=y2-y1
                 w1=z2-z1
@@ -171,3 +170,69 @@ class Tracks():
                 v.append(v1)
                 w.append(w1)
         return x,y,z,u,v,w
+        
+    def sentidos(self,xc,yc,lmin):
+        def sentidosT(tiempo):
+            def determinarSentido(x3,y3,z3,x4,y4,z4):
+                distActual=(x3-xc)**2+(y3-yc)**2#Distancia actual al centro
+                distSiguiente=(x4-xc)**2+(y4-yc)**2#Dist. siguiente al centro
+                deltaRadial=distSiguiente-distActual#Desplazamiento radial
+                deltaZ = z4-z3#Desplazamiento z
+                if abs(deltaRadial)>abs(deltaZ):
+                    if deltaRadial>0:
+                        return 1
+                    else:
+                        return 0
+                else:
+                    if deltaZ>0:
+                        return 2
+                    else:
+                        return 3
+            
+            resultado=[]
+            for track in self.tracks:
+                x3,y3,z3=track.posicion(tiempo)
+                x4,y4,z4=track.siguiente(tiempo)
+                if x3 and x4 and lmin<=track.longitud():
+                    resultado.append(determinarSentido(x3,y3,z3,x4,y4,z4))
+            return resultado
+        return [sentidosT(t) for t in range(self.duracion)]
+    """
+    def vectoresSeparados(self,xc,yc,tiempo,lmin):
+        "Retorna los vectores separados por su sentido (centro, fuera, arriba, abajo)"
+        x1=[]
+        y1=[]
+        z1=[]
+        u1=[]
+        v1=[]
+        w1=[]
+        x2=[]
+        y2=[]
+        z2=[]
+        u2=[]
+        v2=[]
+        w2=[]
+        for track in self.tracks:
+            x3,y3,z3=track.posicion(tiempo)
+            x4,y4,z4=track.siguiente(tiempo)
+            if x3 and x4 and lmin<=track.longitud:
+                hypOrigen=(x3-xc)**2+(y3-yc)**2
+                hypDest=(x4-xc)**2+(y4-yc)**2
+                u3=x4-x3
+                v3=y4-y3
+                w3=z4-z3
+                if (hypOrigen>hypDest):#Si se acerca al centro...
+                    x1.append(x3)
+                    y1.append(y3)
+                    z1.append(z3)
+                    u1.append(u3)
+                    v1.append(v3)
+                    w1.append(w3)
+                else:
+                    x2.append(x3)
+                    y2.append(y3)
+                    z2.append(z3)
+                    u2.append(u3)
+                    v2.append(v3)
+                    w2.append(w3)
+        return x1,y1,z1,u1,v1,w1,x2,y2,z2,u2,v2,w2"""

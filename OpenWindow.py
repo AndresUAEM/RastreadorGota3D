@@ -33,10 +33,13 @@ class OpenWindow(QtGui.QDialog):
         gateway.entry_point.abrir()
         gateway.entry_point.setVoxelSize()
         #gateway.entry_point.mostrar()
+        print('calculando trayectorias')
         datos=gateway.entry_point.localizar()
+        print('trayectorias calculadas')
         self.tracks=Tracks(datos)
+        print('Datos obtenidos')
         #self.tracks.imprimir()
-        self.tracks.guardar('Tracks.csv')
+        #self.tracks.guardar('Tracks.csv')
         self.close()
         #else:
         #    print 'Error en la maquina virtual (JVM)'
