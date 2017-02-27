@@ -50,7 +50,7 @@ class Visualization(HasTraits):
         #self.flechasRojas.mlab_source.set(x=self.vectRojos.x[i], y=self.vectRojos.y[i], z=self.vectRojos.z[i], u=self.vectRojos.u[i], v=self.vectRojos.v[i], w=self.vectRojos.w[i],color=(1,0,0))
         self.esferas[0].mlab_source.reset(x=self.x[0][i],y=self.y[0][i],z=self.z[0][i],scale_factor=1,color=(0,0,1))
         self.esferas[1].mlab_source.reset(x=self.x[1][i],y=self.y[1][i],z=self.z[1][i],scale_factor=1,color=(0,1,0))
-        self.esferas[2].mlab_source.reset(x=self.x[2][i],y=self.y[2][i],z=self.z[2][i],scale_factor=1,color=(1,0,0))
+        #self.esferas[2].mlab_source.reset(x=self.x[2][i],y=self.y[2][i],z=self.z[2][i],scale_factor=1,color=(1,0,0))
         self.esferas[3].mlab_source.reset(x=self.x[3][i],y=self.y[3][i],z=self.z[3][i],scale_factor=1,color=(1,1,1))
     def guardarImagen(self,nombre):
         self.scene.save(nombre+'.png')
@@ -120,7 +120,7 @@ class Visualization(HasTraits):
         #self.vectVerdes,self.vectRojos = self.crearVectores(tracks,lmin)
         i=0
         self.completas=self.crearTrayectorias(tracks,lmin)
-        self.trayectorias=self.scene.mlab.quiver3d(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w,color=(1,1,0.5),opacity=0.3,scale_factor=1.0)
+        self.trayectorias=self.scene.mlab.quiver3d(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w,color=(1,0,0),opacity=0.3,scale_factor=1.0)
         self.scene.mlab.outline()
         self.scene.mlab.axes()
         #self.trayectorias=self.scene.mlab.flow(self.completas.x,self.completas.y,self.completas.z,self.completas.u,self.completas.v,self.completas.w)
@@ -132,8 +132,8 @@ class Visualization(HasTraits):
         self.esferas=[]
         self.esferas.append(self.scene.mlab.points3d(self.x[0][i],self.y[0][i],self.z[0][i],scale_factor=1,color=(0,0,1)))
         self.esferas.append(self.scene.mlab.points3d(self.x[1][i],self.y[1][i],self.z[1][i],scale_factor=1,color=(0,1,0)))
-        self.esferas.append(self.scene.mlab.points3d(self.x[2][i],self.y[2][i],self.z[2][i],scale_factor=1,color=(1,0,0)))
-        self.esferas.append(self.scene.mlab.points3d(self.x[3][i],self.y[3][i],self.z[3][i],scale_factor=1,color=(1,1,1)))
+        #self.esferas.append(self.scene.mlab.points3d(self.x[2][i],self.y[2][i],self.z[2][i],scale_factor=1,color=(1,0,0)))
+        #self.esferas.append(self.scene.mlab.points3d(self.x[3][i],self.y[3][i],self.z[3][i],scale_factor=1,color=(1,1,1)))
         #self.centro=self.scene.mlab.points3d([self.centroX],[self.centroY],[0],scale_factor=20)
         
         
