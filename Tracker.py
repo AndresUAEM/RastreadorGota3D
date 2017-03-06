@@ -140,7 +140,8 @@ class Tracks():
         x2=[]
         y2=[]
         z2=[]
-        for track in self.tracks:
+        for i in range(len(self.tracks)):
+            track=self.tracks[i]
             x1,y1,z1=track.posicion(tiempo)
             x3,y3,z3=track.siguiente(tiempo)
             if x1 and x3 and lmin<=track.longitud():
@@ -185,7 +186,8 @@ class Tracks():
                 
             
             resultado=[]
-            for track in self.tracks:
+            for i in range(len(self.tracks)):
+                track=self.tracks[i]
                 x3,y3,z3=track.posicion(tiempo)
                 x4,y4,z4=track.siguiente(tiempo)
                 if x3 and x4 and lmin<=track.longitud():

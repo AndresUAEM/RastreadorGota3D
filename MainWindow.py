@@ -8,38 +8,54 @@ os.environ['ETS_TOOLKIT'] = 'qt4'
 from pyface.qt import QtGui, QtCore
 from Animacion import Animacion
 from OpenWindow import OpenWindow
-from tkFileDialog import asksaveasfilename
+from tkFileDialog import asksaveasfilename, askopenfilename
 from Tkinter import Tk
+from py4j.java_gateway import JavaGateway
+from Tracker import Tracks
 ################################################################################
 
 
 class Principal(QtGui.QMainWindow):
     
-    def abrir(self):
-        self.aplicacionAbrir=OpenWindow(self)
-        tracks=[]
-        try:
-            tracks=self.aplicacionAbrir.tracks
-            print('Trayectorias cargadas')
-        except AttributeError:
-            print 'Inicie máquina virtual (JVM)'
-            sys.exit()
-        self.animacion.actualizar(tracks)
-            
+    def desbloquear(self):            
         self.botonPlay.setEnabled(True)
         self.sliderFrame.setEnabled(True)
-        self.sliderFrame.setMaximum(self.aplicacionAbrir.tracks.duracion-1)
+        self.sliderFrame.setMaximum(self.tracks.duracion-1)
         self.cambiarFrame()
         self.botonGuardarTrayectorias.setEnabled(True)
         self.botonGuardarVideo.setEnabled(True)
         for cb in self.checkBoxParticulas:
             cb.setEnabled(True)
         self.accionCheckBox()
-            
+        
+    def abrir(self):
+        self.aplicacionAbrir=OpenWindow(self)
+        tracks=[]
+        try:
+            self.tracks=self.aplicacionAbrir.tracks
+            print('Trayectorias cargadas')
+        except AttributeError:
+            print 'Inicie máquina virtual (JVM)'
+            sys.exit()
+        self.animacion.actualizar(self.tracks)
+        self.desbloquear()
+        
+    
+    def cargar(self):
+        Tk().withdraw()
+        nombre=askopenfilename()
+        print(nombre)
+        gateway = JavaGateway()
+        datos=gateway.entry_point.cargarXML(nombre)
+        self.tracks=Tracks(datos)
+        self.tracks.guardar('Archivo.csv')
+        self.animacion.actualizar(self.tracks)
+        self.desbloquear()
+        
     def guardar(self):
         Tk().withdraw()
         archivo=asksaveasfilename()
-        self.aplicacionAbrir.tracks.guardar(archivo.name+'.csv')
+        self.tracks.guardar(archivo.name+'.csv')
         
     def guardarVideo(self):
         Tk().withdraw()
@@ -50,6 +66,7 @@ class Principal(QtGui.QMainWindow):
         self.menubar=QtGui.QMenuBar()
         self.menuArchivo = self.menubar.addMenu('&Archivo')
         self.botonAbrir  = self.menuArchivo.addAction('&Abrir',self.abrir)
+        self.botonAbrir  = self.menuArchivo.addAction('&Cargar XML',self.cargar)
         self.botonGuardarTrayectorias= self.menuArchivo.addAction('&Guardar Trayectorias',self.guardar)
         self.botonGuardarTrayectorias.setEnabled(False)
         self.botonGuardarVideo= self.menuArchivo.addAction('&Guardar Video',self.guardarVideo)
@@ -60,12 +77,12 @@ class Principal(QtGui.QMainWindow):
     
     def cambiarFrame(self):
         self.animacion.mayavi_widget.visualization.cambiarFrame(self.sliderFrame.value())
-        self.labelIndice.setText(str(self.sliderFrame.value())+'/'+str(self.aplicacionAbrir.tracks.duracion-1))
+        self.labelIndice.setText(str(self.sliderFrame.value())+'/'+str(self.tracks.duracion-1))
     
     def play(self,val,val2):
         while self.continuarReproduccion:
             print(self.indice)
-            self.indice=(self.indice+1)%(self.aplicacionAbrir.tracks.duracion-1)
+            self.indice=(self.indice+1)%(self.tracks.duracion-1)
             self.sliderFrame.setValue(self.indice)
             time.sleep(0.125)
         self.continuarReproduccion=True
