@@ -136,7 +136,7 @@ class Tracks():
                     f.write(',,,,')
         f.close()
     
-    def puntos(self,tiempo,lmin,xc= np.inf):
+    def puntos(self,tiempo,lmin):
         x2=[]
         y2=[]
         z2=[]

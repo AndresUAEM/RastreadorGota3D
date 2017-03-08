@@ -102,7 +102,7 @@ class Principal(QtGui.QMainWindow):
     
     def crearCheckBoxes(self):
         self.checkBoxParticulas=[]
-        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia centro (Azul)'))
+        self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia centro (Rojo)'))
         self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia fuera (Verde)'))
         #self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia arriba (Rojo)'))
         #self.checkBoxParticulas.append(QtGui.QCheckBox('Hacia abajo (Blanco)'))
